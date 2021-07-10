@@ -1,1 +1,4 @@
 # speech-to-intent
+
+PYTHONPATH
+ENVIRONMENT_VARIABLE
