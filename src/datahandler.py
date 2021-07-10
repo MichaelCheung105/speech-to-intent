@@ -1,5 +1,6 @@
-from torch.utils.data import Dataset, DataLoader, RandomSampler, BatchSampler
+import torch
 from sklearn.model_selection import train_test_split
+from torch.utils.data import Dataset, DataLoader, RandomSampler, BatchSampler
 
 
 class SpeechDataset(Dataset):
@@ -19,6 +20,14 @@ class SpeechDataset(Dataset):
 class DataHandler:
     def __init__(self):
         pass
+
+    def preprocess_data(self, train_x, train_y):
+        train_x, validate_x, train_y, validate_y = self.train_test_split(train_x, train_y)
+        train_x, train_y = self.data_augmentation(train_x, train_y)
+        train_set_dataloader = self.get_data_loader(train_x, train_y, is_train=True)
+        validate_x = torch.FloatTensor(validate_x)
+        validate_y = torch.LongTensor(validate_y)
+        return train_set_dataloader, validate_x, validate_y
 
     @staticmethod
     def get_data_loader(data_x, data_y, is_train):
@@ -45,7 +54,6 @@ class DataHandler:
         random_state = 123
 
         # Data Handling
-        train_y = train_y - 1  # TODO: Handle this train_y -1 more beautifully
         train_x, validate_x, train_y, validate_y = train_test_split(train_x, train_y,
                                                                     test_size=test_size,
                                                                     random_state=random_state,
