@@ -110,7 +110,7 @@ class Trainer:
 
     def get_optimizer(self, method='adam'):
         model_params = self.model.parameters()
-        learning_rate = 0.001
+        learning_rate = 0.05
         if method == 'adam':
             optimizer = torch.optim.Adam(model_params, lr=learning_rate)
         else:

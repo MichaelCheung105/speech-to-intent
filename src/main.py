@@ -30,7 +30,7 @@ class Runner:
         merged_metrics_df.columns = cols
         merged_metrics_df.assign(experiment_id=self.create_dt)
         # TODO: log result as csv
-        print(merged_metrics_df)
+        logger.info(f"\n{merged_metrics_df[merged_metrics_df.dataset == 'test']}")
 
     def run(self):
         experiment_mode = config['DEFAULT']['experiment_mode']
