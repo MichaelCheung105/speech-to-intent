@@ -10,7 +10,8 @@ class Runner():
     @staticmethod
     def read_data(data_source):
         data_path = config['DEFAULT']['data_dir']
-        data = np.load(f"{HOME_PATH}/{data_path}/{data_source}_data.npz")
+        file_name = 'data_for_training' if data_source == 'train' else 'test_data'
+        data = np.load(f"{HOME_PATH}/{data_path}/{file_name}.npz")
         return data['f0'], data['f1']
 
     def run(self):
