@@ -3,6 +3,7 @@ import torch.nn as nn
 from models import LSTM
 from logzero import logger
 import numpy as np
+from datahandler import DataHandler
 
 
 class Trainer:
@@ -12,57 +13,59 @@ class Trainer:
 
         # Set Attributes
         self.model = self.get_model(method='lstm')
-        self.loss_function = self.get_loss_function()
-        self.optimizer = self.get_optimizer()
+        self.loss_function = self.get_loss_function(method='cross_entropy')
+        self.optimizer = self.get_optimizer(method='adam')
         self.softmax = nn.Softmax(dim=1)
 
     def train(self, train_x, train_y):
-        epoch = 3
-        train_y = torch.LongTensor(train_y - 1)  # TODO: Handle this train_y -1 more beautifully
-        for i in range(epoch):
-            # Sample Data
-            # TODO: Use DataLoader
-            total_rows = train_x.shape[0]
-            train_num = int(total_rows * 0.8)
-            train_x, validate_x = train_x[:train_num], train_x[train_num:]
-            train_y, validate_y = train_y[:train_num], train_y[train_num:]
+        # TODO: Put this config into config file later
+        epoch = 100
 
-            # Reset gradient
-            self.optimizer.zero_grad()
+        # Conduct train-test-split, data augmentation and prepare dataloader
+        train_x, validate_x, train_y, validate_y = DataHandler.train_test_split(train_x, train_y)
+        train_x, train_y = DataHandler.data_augmentation(train_x, train_y)
+        train_dataloader = DataHandler.get_data_loader(train_x, train_y, is_train=True)
+        validate_x = torch.FloatTensor(validate_x)
+        validate_y = torch.LongTensor(validate_y)
 
-            # Get prediction
-            y_pred, _, _ = self.inference(train_x, verbose=False)
+        for e in range(epoch):
+            total_train_loss = list()
+            for idx, (sampled_x, sampled_y) in enumerate(train_dataloader):
+                # Reset gradient
+                self.optimizer.zero_grad()
 
-            # Calculate loss
-            train_loss = self.loss_function(y_pred, train_y)
+                # Get prediction
+                y_pred = self.model(sampled_x)
 
-            # Backpropagation
-            train_loss.backward()
-            self.optimizer.step()
+                # Calculate loss
+                train_loss = self.loss_function(y_pred, sampled_y)
 
-            # Log Loss
+                # Backpropagation
+                train_loss.backward()
+                self.optimizer.step()
+
+                # Update epoch-wise train loss
+                total_train_loss.append(train_loss.detach().numpy().mean())
+
+            # Summarize the Train & Validation Loss
             with torch.no_grad():
-                y_pred, _, _ = self.inference(validate_x, verbose=False)
+                y_pred = self.model(validate_x)
                 validate_loss = self.loss_function(y_pred, validate_y)
-                logger.info(f'train loss: {train_loss.sum()}, validate loss: {validate_loss.sum()}')
+                logger.info(f'epoch: {e}, train loss: {np.mean(total_train_loss)}, validate loss: {validate_loss.mean()}')
 
-    def inference(self, train_x, verbose):
+    def inference(self, train_x):
         train_x = torch.FloatTensor(train_x)
         y_pred = self.model(train_x)
-        if verbose:
-            predicted_class = np.argmax(y_pred.detach().numpy(), axis=1)
-            probability_per_class = self.softmax(y_pred)
-        else:
-            predicted_class = None
-            probability_per_class = None
-        return y_pred, predicted_class, probability_per_class
+        predicted_class = np.argmax(y_pred.detach().numpy(), axis=1)
+        probability_per_class = self.softmax(y_pred)
+        return predicted_class, probability_per_class
 
     @staticmethod
     def get_model(method='lstm'):
         input_size = 41
         hidden_layer_size = 8
         output_size = 31
-        if method == 'some method':
+        if method == 'lstm':
             mod = LSTM(input_size=input_size, hidden_layer_size=hidden_layer_size, output_size=output_size)
         else:
             logger.info(f"The specified model '{method}' not found. Revert to use 'lstm'")

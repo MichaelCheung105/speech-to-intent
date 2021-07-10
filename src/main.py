@@ -2,6 +2,7 @@ import numpy as np
 from logzero import logger
 from config import HOME_PATH, config
 from trainer import Trainer
+from sklearn.metrics import confusion_matrix
 
 
 class Runner:
@@ -26,13 +27,13 @@ class Runner:
             logger.info('loading train data')
             train_x, train_y = self.read_data(data_source='train')
             self.trainer.train(train_x, train_y)
-            _, predicted_class, probability_per_class = self.trainer.inference(train_x, verbose=True)
+            predicted_class, probability_per_class = self.trainer.inference(train_x)
             self.measure_accuracy(labels=train_y, predicted_class=predicted_class, y_pred_prob=probability_per_class)
 
         if 'test' in experiment_mode:
             logger.info('loading test data')
             test_x, test_y = self.read_data(data_source='train')
-            _, predicted_class, probability_per_class = self.trainer.inference(test_x, verbose=True)
+            predicted_class, probability_per_class = self.trainer.inference(test_x)
             self.measure_accuracy(labels=test_y, predicted_class=predicted_class, y_pred_prob=probability_per_class)
 
 
