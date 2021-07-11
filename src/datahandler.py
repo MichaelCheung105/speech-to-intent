@@ -36,7 +36,7 @@ class DataHandler:
         dataset = SpeechDataset(data_x, data_y)
         if is_train:
             batch_size = config.getint('TRAINER', 'batch_size')
-            num_batch_per_epoch = config.getint('TRAINER', 'num_sample_per_epoch')
+            num_batch_per_epoch = config.getint('TRAINER', 'num_batch_per_epoch')
             random_sampler = RandomSampler(dataset, replacement=True, num_samples=batch_size*num_batch_per_epoch)
             batch_sampler = BatchSampler(random_sampler, batch_size=batch_size, drop_last=True)
             dataloader = DataLoader(dataset=dataset, batch_size=None, sampler=batch_sampler)
