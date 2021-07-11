@@ -132,6 +132,7 @@ dmypy.json
 data/*
 docs/*
 notebook/*
+result/*
 
 # gitkeep
 !.gitkeep
