@@ -13,6 +13,7 @@ class MetricHandler:
 
         # Calculate per category metrics
         for cat_idx in range(conf_matrix.shape[0]):  # Loop over all 31 categories
+            category = str(cat_idx + 1)  # +1 since the true labels start at 1 instead of 0
             logloss, accuracy, precision, recall, tp, fp, fn, tn = self.get_per_category_metrics(conf_matrix,
                                                                                                  cat_idx,
                                                                                                  labels,
@@ -22,13 +23,13 @@ class MetricHandler:
             fp_ls.append(fp)
             fn_ls.append(fn)
             tn_ls.append(tn)
-            metric_ls.append((str(cat_idx), logloss, accuracy, precision, recall, tp, fp, fn, tn))
+            metric_ls.append([category, logloss, accuracy, precision, recall, tp, fp, fn, tn])
 
         # Calculate allover metric
         logloss, accuracy, precision, recall, tp, fp, fn, tn = self.get_overall_metrics(conf_matrix,
                                                                                         tp_ls, fp_ls, fn_ls, tn_ls,
                                                                                         labels, y_pred_prob)
-        metric_ls.append(('overall', logloss, accuracy, precision, recall, tp, fp, fn, tn))
+        metric_ls.append(['overall', logloss, accuracy, precision, recall, tp, fp, fn, tn])
 
         # Return the metrics as dataframe
         metrics_df = pd.DataFrame(metric_ls[::1])
