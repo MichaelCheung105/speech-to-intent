@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from logzero import logger
 
-from config import HOME_PATH, config
 from metrichandler import MetricHandler
+from sti_config import HOME_PATH, config
 from trainer import Trainer
 
 
@@ -17,7 +17,7 @@ class Runner:
 
     @staticmethod
     def read_data(data_source):
-        data_path = config['DEFAULT']['data_dir']
+        data_path = config.get('DEFAULT', 'data_dir')
         file_name = 'data_for_training' if data_source == 'train' else 'test_data'
         data = np.load(f"{HOME_PATH}/{data_path}/{file_name}.npz")
         samples = data['f0']
@@ -33,7 +33,7 @@ class Runner:
         logger.info(f"\n{merged_metrics_df[merged_metrics_df.dataset == 'test']}")
 
     def run(self):
-        experiment_mode = config['DEFAULT']['experiment_mode']
+        experiment_mode = config.get('DEFAULT', 'experiment_mode')
         logger.info(f'experiment mode: {experiment_mode}')
 
         # Prepare a dictionary to log training results

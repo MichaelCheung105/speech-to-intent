@@ -2,6 +2,8 @@ import torch
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader, RandomSampler, BatchSampler
 
+from sti_config import config
+
 
 class SpeechDataset(Dataset):
     def __init__(self, data_x, data_y):
@@ -33,8 +35,8 @@ class DataHandler:
     def get_data_loader(data_x, data_y, is_train):
         dataset = SpeechDataset(data_x, data_y)
         if is_train:
-            batch_size = 64  # TODO: Put this in config
-            num_sample_per_epoch = 32
+            batch_size = config.getint('TRAINING', 'batch_size')
+            num_sample_per_epoch = config.getint('TRAINING', 'num_sample_per_epoch')
             random_sampler = RandomSampler(dataset, replacement=True, num_samples=batch_size*num_sample_per_epoch)
             batch_sampler = BatchSampler(random_sampler, batch_size=batch_size, drop_last=True)
             dataloader = DataLoader(dataset=dataset, batch_size=None, sampler=batch_sampler)
@@ -49,9 +51,8 @@ class DataHandler:
 
     @staticmethod
     def train_test_split(train_x, train_y):
-        # TODO: Add to config
-        test_size = 0.2
-        random_state = 123
+        test_size = config.getfloat('TRAIN_VALIDATION_SPLIT', 'validate_size')
+        random_state = config.getint('TRAIN_VALIDATION_SPLIT', 'random_state')
 
         # Data Handling
         train_x, validate_x, train_y, validate_y = train_test_split(train_x, train_y,

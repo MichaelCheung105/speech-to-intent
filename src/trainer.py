@@ -7,12 +7,14 @@ from logzero import logger
 
 from datahandler import DataHandler
 from models import LSTM
+from sti_config import config
 
 
 class Trainer:
     def __init__(self):
         # Set Seed
-        torch.manual_seed(123)
+        seed = config.getint('TORCH', 'manual_seed')
+        torch.manual_seed(seed)
 
         # Set Attributes
         self.dataloader = DataHandler()
@@ -22,9 +24,8 @@ class Trainer:
         self.softmax = nn.Softmax(dim=1)
 
     def train(self, train_x, train_y):
-        # TODO: Put this config into config file later
-        epoch = 3
-        early_stop_freq = 20
+        epoch = config.getint('TRAINING', 'epoch')
+        early_stop_freq = config.getint('TRAINING', 'early_stop_freq')
 
         # Preprocess data to obtain train_set_dataloader and validation set data
         train_set_dataloader, validate_x, validate_y = self.dataloader.preprocess_data(train_x, train_y)
@@ -83,14 +84,11 @@ class Trainer:
 
     @staticmethod
     def get_model(method='lstm'):
-        input_size = 41
-        hidden_layer_size = 8
-        output_size = 31
         if method == 'lstm':
-            mod = LSTM(input_size=input_size, hidden_layer_size=hidden_layer_size, output_size=output_size)
+            mod = LSTM()
         else:
             logger.info(f"The specified model '{method}' not found. Revert to use 'lstm'")
-            mod = LSTM(input_size=input_size, hidden_layer_size=hidden_layer_size, output_size=output_size)
+            mod = LSTM()
             method = 'lstm'
 
         logger.info(f"Model Used: {method}")
