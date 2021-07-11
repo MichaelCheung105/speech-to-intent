@@ -1,4 +1,5 @@
 import torch
+from logzero import logger
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader, RandomSampler, BatchSampler
 
@@ -23,8 +24,7 @@ class DataHandler:
     def __init__(self):
         pass
 
-    def preprocess_data(self, train_x, train_y):
-        train_x, validate_x, train_y, validate_y = self.train_test_split(train_x, train_y)
+    def preprocess_data(self, train_x, train_y, validate_x, validate_y):
         train_x, train_y = self.data_augmentation(train_x, train_y)
         train_set_dataloader = self.get_data_loader(train_x, train_y, is_train=True)
         validate_x = torch.FloatTensor(validate_x)
@@ -51,6 +51,7 @@ class DataHandler:
 
     @staticmethod
     def train_test_split(train_x, train_y):
+        logger.info('Applying TRAIN-VALIDATION split')
         test_size = config.getfloat('TRAIN_VALIDATION_SPLIT', 'validate_size')
         random_state = config.getint('TRAIN_VALIDATION_SPLIT', 'random_state')
 

@@ -22,19 +22,21 @@ class Trainer:
         self.loss_function = self.get_loss_function(method='cross_entropy')
         self.optimizer = self.get_optimizer(method='adam')
         self.softmax = nn.Softmax(dim=1)
+        self.epoch = config.getint('TRAINING', 'epoch')
+        self.early_stop_freq = config.getint('TRAINING', 'early_stop_freq')
 
-    def train(self, train_x, train_y):
-        epoch = config.getint('TRAINING', 'epoch')
-        early_stop_freq = config.getint('TRAINING', 'early_stop_freq')
+    def train(self, train_x, train_y, validate_x, validate_y):
+        logger.info('Training model')
 
-        # Preprocess data to obtain train_set_dataloader and validation set data
-        train_set_dataloader, validate_x, validate_y = self.dataloader.preprocess_data(train_x, train_y)
+        # Preprocess data to obtain train_set_dataloader and validation set data (Type: torch)
+        train_set_dataloader, validate_x, validate_y = self.dataloader.preprocess_data(train_x, train_y,
+                                                                                       validate_x, validate_y)
 
         # Variables for early stop mechanism
         lowest_val_loss, lowest_val_loss_epoch, early_stop_counter = 9999, 0, 0
         lowest_val_loss_model = pickle.loads(pickle.dumps(self.model.state_dict()))
 
-        for e in range(epoch):
+        for e in range(self.epoch):
             list_of_train_loss = list()  # Logging train loss
             for idx, (sampled_x, sampled_y) in enumerate(train_set_dataloader):
                 # Reset gradient
@@ -69,7 +71,7 @@ class Trainer:
                 lowest_val_loss_model = pickle.loads(pickle.dumps(self.model.state_dict()))
                 early_stop_counter = 0
 
-            if early_stop_counter == early_stop_freq:
+            if early_stop_counter == self.early_stop_freq:
                 self.model.load_state_dict(lowest_val_loss_model)
                 logger.info(f'Early stop since validation loss had not drop for {early_stop_freq} epochs')
                 logger.info(f'Lowest validation loss {lowest_val_loss} at Epoch: {lowest_val_loss_epoch}')
