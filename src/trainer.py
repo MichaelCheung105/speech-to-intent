@@ -1,5 +1,5 @@
 import pickle
-
+import time
 import numpy as np
 import torch
 import torch.nn as nn
@@ -16,7 +16,7 @@ class Trainer:
         seed = config.getint('TORCH', 'manual_seed')
         torch.manual_seed(seed)
 
-        # Set Attributes
+        # Set default attributes
         self.dataloader = DataHandler()
         self.model = self.get_model()
         self.loss_function = self.get_loss_function()
@@ -24,6 +24,10 @@ class Trainer:
         self.softmax = nn.Softmax(dim=1)
         self.epoch = config.getint('TRAINER', 'epoch')
         self.early_stop_freq = config.getint('TRAINER', 'early_stop_freq')
+
+        # Set attributes that will update during training
+        self.trained_time = None
+        self.trained_epoch = None
 
     def train(self, train_x, train_y, validate_x, validate_y):
         logger.info('Training model')
@@ -33,9 +37,10 @@ class Trainer:
                                                                                        validate_x, validate_y)
 
         # Variables for early stop mechanism
-        lowest_val_loss, lowest_val_loss_epoch, early_stop_counter = 9999, 0, 0
+        lowest_val_loss, lowest_val_loss_epoch, lowest_val_loss_time, early_stop_counter = 9999, 0, 0, 0
         lowest_val_loss_model = pickle.loads(pickle.dumps(self.model.state_dict()))
 
+        train_start_time = time.time()
         for e in range(self.epoch):
             list_of_train_loss = list()  # Logging train loss
             for idx, (sampled_x, sampled_y) in enumerate(train_set_dataloader):
@@ -68,6 +73,7 @@ class Trainer:
             if avg_val_loss < lowest_val_loss:
                 lowest_val_loss = avg_val_loss
                 lowest_val_loss_epoch = e
+                lowest_val_loss_time = time.time()
                 lowest_val_loss_model = pickle.loads(pickle.dumps(self.model.state_dict()))
                 early_stop_counter = 0
 
@@ -76,7 +82,11 @@ class Trainer:
                 break
 
         # Use the model with lowest validation loss for inference
-        logger.info(f'Lowest validation loss {lowest_val_loss} at Epoch: {lowest_val_loss_epoch}')
+        self.trained_time = round((lowest_val_loss_time - train_start_time) / 60)
+        self.trained_epoch = lowest_val_loss_epoch
+        logger.info(f'Lowest validation loss {lowest_val_loss} '
+                    f'at Epoch: {lowest_val_loss_epoch} '
+                    f'after {self.trained_time} seconds')
         logger.info(f'Replacing the trained model with the lowest validation loss model during training')
         self.model.load_state_dict(lowest_val_loss_model)
 

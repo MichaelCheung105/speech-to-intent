@@ -35,7 +35,9 @@ class Runner:
         cols = ['category', 'logloss', 'accuracy', 'precision', 'recall', 'tp', 'fp', 'fn', 'tn', 'dataset']
         merged_metrics_df = pd.concat(result_dict['merged_metrics_df'])
         merged_metrics_df.columns = cols
-        merged_metrics_df = merged_metrics_df.assign(experiment_id=self.create_dt,
+        model_id = config.get('DEFAULT', 'model_id') if self.experiment_mode == 'test' else self.create_dt
+        merged_metrics_df = merged_metrics_df.assign(create_dt=self.create_dt,
+                                                     model_id=model_id,
                                                      remarks=config.get('DEFAULT', 'remarks'))
 
         # Print result
