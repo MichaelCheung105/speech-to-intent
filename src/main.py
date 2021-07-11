@@ -112,7 +112,8 @@ class Runner:
             self.inference_and_evaluate(result_dict, test_x, test_y, test_i, dataset='test')
 
         # Log results
-        self.log_result(result_dict, verbose=True)
+        if config.getboolean('DEFAULT', 'is_log_result'):
+            self.log_result(result_dict, verbose=True)
 
 
 if __name__ == '__main__':
