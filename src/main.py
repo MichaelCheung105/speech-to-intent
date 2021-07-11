@@ -58,7 +58,7 @@ class Runner:
         logger.info(f'Saving model to {save_path}')
 
         with open(save_path, 'wb') as f:
-            pickle.dump(self.trainer.model, f)
+            pickle.dump(self.trainer, f)
 
     def load_model(self):
         model_path = config.get('DEFAULT', 'model_path')
@@ -99,7 +99,7 @@ class Runner:
 
         if 'test' in self.experiment_mode:
             test_x, test_y = self.read_data(data_source='test')
-            self.trainer.model = self.load_model()
+            self.trainer = self.load_model()
             self.inference_and_evaluate(result_dict, test_x, test_y, dataset='test')
 
         # Log results
