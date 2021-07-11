@@ -18,12 +18,12 @@ class Trainer:
 
         # Set Attributes
         self.dataloader = DataHandler()
-        self.model = self.get_model(method='lstm')
-        self.loss_function = self.get_loss_function(method='cross_entropy')
-        self.optimizer = self.get_optimizer(method='adam')
+        self.model = self.get_model()
+        self.loss_function = self.get_loss_function()
+        self.optimizer = self.get_optimizer()
         self.softmax = nn.Softmax(dim=1)
-        self.epoch = config.getint('TRAINING', 'epoch')
-        self.early_stop_freq = config.getint('TRAINING', 'early_stop_freq')
+        self.epoch = config.getint('TRAINER', 'epoch')
+        self.early_stop_freq = config.getint('TRAINER', 'early_stop_freq')
 
     def train(self, train_x, train_y, validate_x, validate_y):
         logger.info('Training model')
@@ -85,38 +85,35 @@ class Trainer:
         return predicted_class, probability_per_class
 
     @staticmethod
-    def get_model(method='lstm'):
-        if method == 'lstm':
+    def get_model():
+        method = config.get('TRAINER', 'model')
+        logger.info(f"Model Used: {method}")
+
+        if method == 'LSTM':
             mod = LSTM()
         else:
-            logger.info(f"The specified model '{method}' not found. Revert to use 'lstm'")
-            mod = LSTM()
-            method = 'lstm'
-
-        logger.info(f"Model Used: {method}")
+            raise Exception
         return mod
 
     @staticmethod
-    def get_loss_function(method='cross_entropy'):
-        if method == 'cross_entropy':
-            loss = nn.CrossEntropyLoss()
-        else:
-            logger.info(f"The specified loss function '{method}' not found. Revert to use 'cross_entropy'")
-            loss = nn.CrossEntropyLoss()
-            method = 'cross_entropy'
-
+    def get_loss_function():
+        method = config.get('TRAINER', 'loss_function')
         logger.info(f"Loss function Used: {method}")
-        return loss
 
-    def get_optimizer(self, method='adam'):
+        if method == 'cross_entropy':
+            loss_function = nn.CrossEntropyLoss()
+        else:
+            raise Exception
+        return loss_function
+
+    def get_optimizer(self):
+        method = config.get('TRAINER', 'optimizer')
+        learning_rate = config.getfloat('TRAINER', 'learning_rate')
+        logger.info(f"Optimizer Used: {method} with Learning Rate: {learning_rate}")
+
         model_params = self.model.parameters()
-        learning_rate = 0.05
         if method == 'adam':
             optimizer = torch.optim.Adam(model_params, lr=learning_rate)
         else:
-            logger.info(f"The specified optimizer '{method}' not found. Revert to use 'adam'")
-            optimizer = torch.optim.Adam(model_params, lr=learning_rate)
-            method = 'adam'
-
-        logger.info(f"Optimizer Used: {method}")
+            raise Exception
         return optimizer

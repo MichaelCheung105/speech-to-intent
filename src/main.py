@@ -42,8 +42,9 @@ class Runner:
         if verbose:
             pd.set_option('display.max_columns', 20)
             pd.set_option('display.width', 200)
-            logger.info(f"\n{merged_metrics_df[merged_metrics_df.dataset == 'train']}")
-            logger.info(f"\n{merged_metrics_df[merged_metrics_df.dataset == 'test']}")
+            logger.info(f"Result of Train Set:\n{merged_metrics_df[merged_metrics_df.dataset == 'train']}")
+            logger.info(f"Result of Validate Set:\n{merged_metrics_df[merged_metrics_df.dataset == 'validate']}")
+            logger.info(f"Result of Test Set:\n{merged_metrics_df[merged_metrics_df.dataset == 'test']}")
 
         # Log result as csv
         accuracy_path = config.get('DEFAULT', 'accuracy_path')
@@ -99,10 +100,10 @@ class Runner:
         if 'test' in self.experiment_mode:
             test_x, test_y = self.read_data(data_source='test')
             self.trainer.model = self.load_model()
-            self.inference_and_evaluate(result_dict, test_x, test_y, dataset='Test')
+            self.inference_and_evaluate(result_dict, test_x, test_y, dataset='test')
 
         # Log results
-        self.log_result(result_dict, verbose=False)
+        self.log_result(result_dict, verbose=True)
 
 
 if __name__ == '__main__':
