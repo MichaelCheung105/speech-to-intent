@@ -103,7 +103,9 @@ class Runner:
             self.trainer.train(train_x, train_y, validate_x, validate_y)
             self.inference_and_evaluate(result_dict, train_x, train_y, train_i, dataset='train')
             self.inference_and_evaluate(result_dict, validate_x, validate_y, validate_i, dataset='validate')
-            self.save_model()
+
+            if config.getboolean('DEFAULT', 'is_save_result'):
+                self.save_model()
 
         if 'test' in self.experiment_mode:
             self.trainer = self.load_model()
@@ -112,7 +114,7 @@ class Runner:
             self.inference_and_evaluate(result_dict, test_x, test_y, test_i, dataset='test')
 
         # Log results
-        if config.getboolean('DEFAULT', 'is_log_result'):
+        if config.getboolean('DEFAULT', 'is_save_result'):
             self.log_result(result_dict, verbose=True)
 
 

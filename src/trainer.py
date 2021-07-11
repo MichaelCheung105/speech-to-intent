@@ -6,7 +6,7 @@ import torch.nn as nn
 from logzero import logger
 
 from datahandler import DataHandler
-from models import LSTM
+from models import LSTM, CnnLSTM
 from sti_config import config
 
 
@@ -86,7 +86,7 @@ class Trainer:
         self.trained_epoch = lowest_val_loss_epoch
         logger.info(f'Lowest validation loss {lowest_val_loss} '
                     f'at Epoch: {lowest_val_loss_epoch} '
-                    f'after {self.trained_time} seconds')
+                    f'after {self.trained_time} minutes')
         logger.info(f'Replacing the trained model with the lowest validation loss model during training')
         self.model.load_state_dict(lowest_val_loss_model)
 
@@ -104,6 +104,8 @@ class Trainer:
 
         if method == 'LSTM':
             mod = LSTM()
+        elif method == 'CnnLSTM':
+            mod = CnnLSTM()
         else:
             raise Exception
         return mod
