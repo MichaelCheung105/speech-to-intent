@@ -25,11 +25,14 @@ class Runner:
         return samples, labels
 
     def log_result(self, result_dict):
-        cols = ['category', 'accuracy', 'precision', 'recall', 'tp', 'fp', 'fn', 'tn', 'dataset']
-        merged_metrics_df = pd.concat(result_dict['merged_metrics_df'])
+        cols = ['category', 'logloss', 'accuracy', 'precision', 'recall', 'tp', 'fp', 'fn', 'tn', 'dataset', 'remarks']
+        merged_metrics_df = pd.concat(result_dict['merged_metrics_df']).assign(remarks=config.get('DEFAULT', 'remarks'))
         merged_metrics_df.columns = cols
         merged_metrics_df.assign(experiment_id=self.create_dt)
         # TODO: log result as csv
+        pd.set_option('display.max_columns', 20)
+        pd.set_option('display.width', 200)
+        logger.info(f"\n{merged_metrics_df[merged_metrics_df.dataset == 'train']}")
         logger.info(f"\n{merged_metrics_df[merged_metrics_df.dataset == 'test']}")
 
     def run(self):
@@ -44,7 +47,7 @@ class Runner:
         if 'train' in experiment_mode:
             logger.info('loading train data')
             train_x, train_y = self.read_data(data_source='train')
-            self.trainer.train(train_x, train_y)
+            # self.trainer.train(train_x, train_y)
             predicted_class, probability_per_class = self.trainer.inference(train_x)
             train_conf_matrix, train_metrics_df = self.metric_handler.calculate_metrics(labels=train_y,
                                                                                         predicted_class=predicted_class,
