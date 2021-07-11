@@ -72,10 +72,13 @@ class Trainer:
                 early_stop_counter = 0
 
             if early_stop_counter == self.early_stop_freq:
-                self.model.load_state_dict(lowest_val_loss_model)
-                logger.info(f'Early stop since validation loss had not drop for {early_stop_freq} epochs')
-                logger.info(f'Lowest validation loss {lowest_val_loss} at Epoch: {lowest_val_loss_epoch}')
+                logger.info(f'Early stop since validation loss had not drop for {self.early_stop_freq} epochs')
                 break
+
+        # Use the model with lowest validation loss for inference
+        logger.info(f'Lowest validation loss {lowest_val_loss} at Epoch: {lowest_val_loss_epoch}')
+        logger.info(f'Replacing the trained model with the lowest validation loss model during training')
+        self.model.load_state_dict(lowest_val_loss_model)
 
     def inference(self, train_x):
         train_x = torch.FloatTensor(train_x)
