@@ -1,8 +1,10 @@
 import pickle
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from logzero import logger
 
 from datahandler import DataHandler
@@ -30,8 +32,39 @@ class Runner:
         return samples, labels
 
     def log_result(self, result_dict, verbose=False):
-        logger.info(f'Logging Result')
+        logger.info(f'Start logging results')
 
+        self.log_evaluation_metrics(result_dict, verbose)
+        self.log_confusion_matrix(result_dict)
+        # TODO: Log prediction result as csv
+
+    def log_confusion_matrix(self, result_dict):
+        logger.info(f'Step 2: exporting confusion matrix')
+
+        # Define plot configs
+        num_of_subplots = len(result_dict['confusion_matrices'])
+        tick_labels = [str(i + 1) for i in range(31)]
+        width = 10
+
+        # Plot confusion matrix
+        fig, axes = plt.subplots(nrows=num_of_subplots, figsize=(width, width * num_of_subplots))
+        for idx, keys in enumerate(result_dict['confusion_matrices']):
+            sns.heatmap(data=result_dict['confusion_matrices'][keys], ax=axes[idx], cbar=True,
+                        xticklabels=tick_labels, yticklabels=tick_labels, cmap='YlGnBu', linewidths=.1, linecolor='b',
+                        )
+            axes[idx].set_title(f'Confusion Matrix: {keys} set')
+            axes[idx].set_xlabel('Prediction')
+            axes[idx].set_ylabel('True Label')
+
+        # Save figure
+        confusion_matrix_path = config.get('DEFAULT', 'confusion_matrix_path')
+        save_path = f"{HOME_PATH}/{confusion_matrix_path}/{self.create_dt}_confusion_matrix.png"
+        fig.savefig(save_path, bbox_inches='tight')
+
+    def log_evaluation_metrics(self, result_dict, verbose):
+        logger.info(f'Step 1: exporting evaluation metrics')
+
+        # Concat the metrics df
         cols = ['category', 'logloss', 'accuracy', 'precision', 'recall', 'tp', 'fp', 'fn', 'tn', 'dataset']
         merged_metrics_df = pd.concat(result_dict['merged_metrics_df'])
         merged_metrics_df.columns = cols
@@ -47,14 +80,12 @@ class Runner:
             logger.info(f"Result of Train Set:\n{merged_metrics_df[merged_metrics_df.dataset == 'train']}")
             logger.info(f"Result of Validate Set:\n{merged_metrics_df[merged_metrics_df.dataset == 'validate']}")
             logger.info(f"Result of Test Set:\n{merged_metrics_df[merged_metrics_df.dataset == 'test']}")
-
+            
         # Log evaluation metrics as csv
         accuracy_path = config.get('DEFAULT', 'accuracy_path')
         save_path = f"{HOME_PATH}/{accuracy_path}/{self.create_dt}_merged_metrics_df.csv"
         logger.info(f'Saving evaluation metrics to {save_path}')
         merged_metrics_df.to_csv(save_path)
-
-        # TODO: Log prediction result as csv
 
     def save_model(self):
         model_path = config.get('DEFAULT', 'model_path')
@@ -90,9 +121,7 @@ class Runner:
         logger.info(f'Experiment Mode: {self.experiment_mode}')
 
         # Prepare a dictionary to log training results
-        result_dict = {'confusion_matrices': {'train': None, 'validate': None, 'test': None},
-                       'merged_metrics_df': []
-                       }
+        result_dict = {'confusion_matrices': {}, 'merged_metrics_df': []}
 
         if 'train' in self.experiment_mode:
             train_x, train_y = self.read_data(data_source='train')
