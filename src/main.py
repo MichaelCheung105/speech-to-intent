@@ -31,6 +31,12 @@ class Runner:
         labels = data['f1'] - 1  # -1 to make the classes starts with 0
         return samples, labels
 
+    @staticmethod
+    def preprocess(train_x):
+        # Downsampling
+        # train_x = train_x[:, ::2, :]
+        return train_x
+
     def log_result(self, result_dict, verbose=False):
         logger.info(f'Start logging results')
 
@@ -125,10 +131,10 @@ class Runner:
 
         if 'train' in self.experiment_mode:
             train_x, train_y = self.read_data(data_source='train')
-            train_i = np.array(range(train_x.shape[0]))  # Get the indices of training data
+            train_x = self.preprocess(train_x)
             train_x, validate_x, train_y, validate_y, train_i, validate_i = DataHandler.train_test_split(train_x,
-                                                                                                         train_y,
-                                                                                                         train_i)
+                                                                                                         train_y
+                                                                                                         )
             self.trainer.train(train_x, train_y, validate_x, validate_y)
             self.inference_and_evaluate(result_dict, train_x, train_y, train_i, dataset='train')
             self.inference_and_evaluate(result_dict, validate_x, validate_y, validate_i, dataset='validate')
