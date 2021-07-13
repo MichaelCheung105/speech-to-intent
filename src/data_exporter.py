@@ -32,7 +32,7 @@ class DataExporter:
         predictions_path = config.get('DEFAULT', 'predictions_path')
         save_path = f"{HOME_PATH}/{predictions_path}/{self.create_dt}_predictions_df.csv"
         logger.info(f'Saving predictions_df to {save_path}')
-        predictions_df.to_csv(save_path, ignore_index=True)
+        predictions_df.to_csv(save_path, index=True)
 
     def log_confusion_matrix(self, result_dict):
         logger.info(f'Step 2: exporting confusion matrix')
@@ -83,4 +83,4 @@ class DataExporter:
         accuracy_path = config.get('DEFAULT', 'accuracy_path')
         save_path = f"{HOME_PATH}/{accuracy_path}/{self.create_dt}_merged_metrics_df.csv"
         logger.info(f'Saving evaluation metrics to {save_path}')
-        merged_metrics_df.to_csv(save_path, ignore_index=True)
+        merged_metrics_df.to_csv(save_path, index=True)
