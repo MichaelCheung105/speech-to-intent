@@ -51,13 +51,12 @@ class DataHandler:
         return data_x, data_y
 
     @staticmethod
-    def train_test_split(train_x, train_y):
+    def train_test_split(train_x, train_y, train_i):
         logger.info('Applying TRAIN-VALIDATION split')
         test_size = config.getfloat('TRAIN_VALIDATION_SPLIT', 'validate_size')
         random_state = config.getint('TRAIN_VALIDATION_SPLIT', 'random_state')
 
         # Data Handling
-        train_i = np.array(range(train_x.shape[0]))  # Get the indices of training data
         train_x, validate_x, train_y, validate_y, train_i, validate_i = train_test_split(train_x, train_y, train_i,
                                                                                          test_size=test_size,
                                                                                          random_state=random_state,
