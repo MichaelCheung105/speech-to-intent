@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader, RandomSampler, BatchSampler
 
 from sti_config import config
+import numpy as np
 
 
 class SpeechDataset(Dataset):

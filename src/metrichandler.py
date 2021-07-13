@@ -37,7 +37,7 @@ class MetricHandler:
 
     @staticmethod
     def get_per_category_metrics(conf_matrix, cat_idx, labels, y_pred_prob):
-        logloss = log_loss(labels == cat_idx, y_pred_prob[:, cat_idx])
+        logloss = log_loss(labels == cat_idx, y_pred_prob[:, cat_idx], eps=1e-7)
         num_all_label = conf_matrix.sum()
         num_pred_label = conf_matrix[:, cat_idx].sum()
         num_real_label = conf_matrix[cat_idx, :].sum()
@@ -59,5 +59,5 @@ class MetricHandler:
         precision = tp / (tp + fp)
         recall = tp / (tp + fn)
         accuracy = tp / conf_matrix.sum()
-        logloss = log_loss(labels, y_pred_prob)
+        logloss = log_loss(labels, y_pred_prob, eps=1e-7)
         return logloss, accuracy, precision, recall, tp, fp, fn, tn

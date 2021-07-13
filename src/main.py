@@ -31,6 +31,22 @@ class Runner:
         labels = data['f1'] - 1  # -1 to make the classes starts with 0
         return samples, labels
 
+    @staticmethod
+    def preprocess(data_x):
+        # Get the indices of data
+        data_i = np.array(range(data_x.shape[0]))  # Get the indices of training data
+
+        # Down Sampling
+        down_sample_time = config.getint('PREPROCESS', 'down_sample_time')
+        if down_sample_time > 1:
+            data_x = data_x[:, ::down_sample_time, :]
+
+        down_sample_feature = config.getint('PREPROCESS', 'down_sample_feature')
+        if down_sample_feature > 1:
+            data_x = data_x[:, :, ::down_sample_feature]
+
+        return data_x, data_i
+
     def log_result(self, result_dict, verbose=False):
         logger.info(f'Start logging results')
 
@@ -125,10 +141,11 @@ class Runner:
 
         if 'train' in self.experiment_mode:
             train_x, train_y = self.read_data(data_source='train')
-            train_i = np.array(range(train_x.shape[0]))  # Get the indices of training data
+            train_x, train_i = self.preprocess(train_x)
             train_x, validate_x, train_y, validate_y, train_i, validate_i = DataHandler.train_test_split(train_x,
                                                                                                          train_y,
-                                                                                                         train_i)
+                                                                                                         train_i
+                                                                                                         )
             self.trainer.train(train_x, train_y, validate_x, validate_y)
             self.inference_and_evaluate(result_dict, train_x, train_y, train_i, dataset='train')
             self.inference_and_evaluate(result_dict, validate_x, validate_y, validate_i, dataset='validate')
@@ -139,7 +156,7 @@ class Runner:
         if 'test' in self.experiment_mode:
             self.trainer = self.load_model()
             test_x, test_y = self.read_data(data_source='test')
-            test_i = np.array(range(test_x.shape[0]))  # Get the indices of testing data
+            test_x, test_i = self.preprocess(test_x)
             self.inference_and_evaluate(result_dict, test_x, test_y, test_i, dataset='test')
 
         # Log results
