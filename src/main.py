@@ -57,32 +57,28 @@ class Runner:
     def run(self):
         logger.info(f'Experiment Mode: {self.experiment_mode}')
 
-        # Prepare a dictionary to log training results
-        result_dict = {'confusion_matrices': {}, 'merged_metrics_df': {}, 'predictions_df': {}}
+        # Prepare train & validate set
+        train_x, train_y = DataHandler.read_data(data_source='train')
+        train_x, train_i = DataHandler.preprocess(train_x)
+        train_x, val_x, train_y, val_y, train_i, val_i = DataHandler.train_test_split(train_x, train_y, train_i)
 
+        # Prepare test set
+        test_x, test_y = DataHandler.read_data(data_source='test')
+        test_x, test_i = DataHandler.preprocess(test_x)
+
+        # Train or Load model from directory
         if 'train' in self.experiment_mode:
-            train_x, train_y = DataHandler.read_data(data_source='train')
-            train_x, train_i = DataHandler.preprocess(train_x)
-            train_x, validate_x, train_y, validate_y, train_i, validate_i = DataHandler.train_test_split(train_x,
-                                                                                                         train_y,
-                                                                                                         train_i
-                                                                                                         )
-            self.trainer.train(train_x, train_y, validate_x, validate_y)
-            self.inference_and_evaluate(result_dict, train_x, train_y, train_i, dataset='train')
-            self.inference_and_evaluate(result_dict, validate_x, validate_y, validate_i, dataset='validate')
-
-            if config.getboolean('DEFAULT', 'is_save_result'):
-                self.save_model()
-
-        if 'test' in self.experiment_mode:
+            self.trainer.train(train_x, train_y, val_x, val_y)
+            self.save_model()
+        else:
             self.trainer = self.load_model()
-            test_x, test_y = DataHandler.read_data(data_source='test')
-            test_x, test_i = DataHandler.preprocess(test_x)
-            self.inference_and_evaluate(result_dict, test_x, test_y, test_i, dataset='test')
 
-        # Log results
-        if config.getboolean('DEFAULT', 'is_save_result'):
-            self.data_exporter.log_result(result_dict, verbose=True)
+        # Inference and log result
+        result_dict = {'confusion_matrices': {}, 'merged_metrics_df': {}, 'predictions_df': {}}
+        self.inference_and_evaluate(result_dict, train_x, train_y, train_i, dataset='train')
+        self.inference_and_evaluate(result_dict, val_x, val_y, val_i, dataset='validate')
+        self.inference_and_evaluate(result_dict, test_x, test_y, test_i, dataset='test')
+        self.data_exporter.log_result(result_dict, verbose=True)
 
 
 if __name__ == '__main__':
