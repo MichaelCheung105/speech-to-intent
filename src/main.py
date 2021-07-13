@@ -52,7 +52,25 @@ class Runner:
 
         self.log_evaluation_metrics(result_dict, verbose)
         self.log_confusion_matrix(result_dict)
+        self.log_predictions(result_dict)
         # TODO: Log prediction result as csv
+
+    def log_predictions(self, result_dict):
+        logger.info(f'Step 3: exporting predictions')
+
+        predictions_df = pd.concat(result_dict['predictions_df'].values())
+        model_id = config.get('DEFAULT', 'model_id') if self.experiment_mode == 'test' else self.create_dt
+        predictions_df = predictions_df.assign(create_dt=self.create_dt,
+                                               model_id=model_id,
+                                               remarks=config.get('DEFAULT', 'remarks'))
+        predictions_df['label'] = predictions_df['label'] + 1  # +1 to make the classes start from 1
+        predictions_df['prediced_class'] = predictions_df['prediced_class'] + 1  # +1 to make the classes start from 1
+
+        # Log evaluation metrics as csv
+        predictions_path = config.get('DEFAULT', 'predictions_path')
+        save_path = f"{HOME_PATH}/{predictions_path}/{self.create_dt}_predictions_df.csv"
+        logger.info(f'Saving predictions_df to {save_path}')
+        predictions_df.to_csv(save_path)
 
     def log_confusion_matrix(self, result_dict):
         logger.info(f'Step 2: exporting confusion matrix')
@@ -82,7 +100,7 @@ class Runner:
 
         # Concat the metrics df
         cols = ['category', 'logloss', 'accuracy', 'precision', 'recall', 'tp', 'fp', 'fn', 'tn', 'dataset']
-        merged_metrics_df = pd.concat(result_dict['merged_metrics_df'])
+        merged_metrics_df = pd.concat(result_dict['merged_metrics_df'].values())
         merged_metrics_df.columns = cols
         model_id = config.get('DEFAULT', 'model_id') if self.experiment_mode == 'test' else self.create_dt
         merged_metrics_df = merged_metrics_df.assign(create_dt=self.create_dt,
@@ -130,14 +148,18 @@ class Runner:
                                                                         y_pred_prob=probability_per_class)
         # Store evaluation metrics
         result_dict['confusion_matrices'][dataset] = conf_matrix
-        result_dict['merged_metrics_df'].append(metrics_df.assign(dataset=dataset))
-        # TODO: Log predicted class
+        result_dict['merged_metrics_df'][dataset] = metrics_df.assign(dataset=dataset)
+        result_dict['predictions_df'][dataset] = pd.DataFrame(data={'dataset': dataset,
+                                                                    'indices': data_i,
+                                                                    'label': data_y,
+                                                                    'prediced_probability': np.max(probability_per_class, 1),
+                                                                    'prediced_class': predicted_class})
 
     def run(self):
         logger.info(f'Experiment Mode: {self.experiment_mode}')
 
         # Prepare a dictionary to log training results
-        result_dict = {'confusion_matrices': {}, 'merged_metrics_df': []}
+        result_dict = {'confusion_matrices': {}, 'merged_metrics_df': {}, 'predictions_df': {}}
 
         if 'train' in self.experiment_mode:
             train_x, train_y = self.read_data(data_source='train')

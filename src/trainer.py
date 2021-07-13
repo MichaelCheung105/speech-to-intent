@@ -117,7 +117,7 @@ class Trainer:
     @staticmethod
     def get_loss_function():
         method = config.get('TRAINER', 'loss_function')
-        logger.info(f"Loss function Used: {method}")
+        logger.info(f"Loss function used: {method}")
 
         if method == 'cross_entropy':
             loss_function = nn.CrossEntropyLoss()
@@ -128,7 +128,7 @@ class Trainer:
     def get_optimizer(self):
         method = config.get('TRAINER', 'optimizer')
         learning_rate = config.getfloat('TRAINER', 'learning_rate')
-        logger.info(f"Optimizer Used: {method} with Learning Rate: {learning_rate}")
+        logger.info(f"Optimizer Used: {method} with learning rate: {learning_rate}")
 
         model_params = self.model.parameters()
         if method == 'adam':

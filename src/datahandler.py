@@ -53,6 +53,8 @@ class DataHandler:
     @staticmethod
     def train_test_split(train_x, train_y, train_i):
         logger.info('Applying TRAIN-VALIDATION split')
+
+        # Config
         test_size = config.getfloat('TRAIN_VALIDATION_SPLIT', 'validate_size')
         random_state = config.getint('TRAIN_VALIDATION_SPLIT', 'random_state')
 
