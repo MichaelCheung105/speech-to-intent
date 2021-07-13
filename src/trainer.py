@@ -6,7 +6,7 @@ import torch.nn as nn
 from logzero import logger
 
 from datahandler import DataHandler
-from models import LSTM, CnnLSTM
+from models import LSTM, CnnLSTM, CnnMaxPool
 from sti_config import config
 
 
@@ -106,6 +106,8 @@ class Trainer:
             mod = LSTM()
         elif method == 'CnnLSTM':
             mod = CnnLSTM()
+        elif method == 'CnnMaxPool':
+            mod = CnnMaxPool()
         else:
             raise Exception
         return mod
