@@ -34,12 +34,18 @@ class Runner:
     @staticmethod
     def preprocess(data_x):
         # Get the indices of data
-        train_i = np.array(range(data_x.shape[0]))  # Get the indices of training data
+        data_i = np.array(range(data_x.shape[0]))  # Get the indices of training data
 
-        # Downsampling
-        # train_x = train_x[:, ::2, :]
+        # Down Sampling
+        down_sample_time = config.getint('PREPROCESS', 'down_sample_time')
+        if down_sample_time > 1:
+            data_x = data_x[:, ::down_sample_time, :]
 
-        return data_x, train_i
+        down_sample_feature = config.getint('PREPROCESS', 'down_sample_feature')
+        if down_sample_feature > 1:
+            data_x = data_x[:, :, ::down_sample_feature]
+
+        return data_x, data_i
 
     def log_result(self, result_dict, verbose=False):
         logger.info(f'Start logging results')
