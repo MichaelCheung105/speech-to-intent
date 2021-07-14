@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 from logzero import logger
 
-from datahandler import DataHandler
+from data_handler import DataHandler
 from models import LSTM, CnnLSTM, CnnLSTMV2, CnnMaxPool
 from sti_config import config
 
@@ -32,9 +32,9 @@ class Trainer:
     def train(self, train_x, train_y, validate_x, validate_y):
         logger.info('Training model')
 
-        # Preprocess data to obtain train_set_dataloader and validation set data (Type: torch)
-        train_set_dataloader, validate_x, validate_y = self.dataloader.preprocess_data(train_x, train_y,
-                                                                                       validate_x, validate_y)
+        # Obtain train_set_dataloader and validation set data (Type: torch)
+        train_set_dataloader, validate_x, validate_y = self.dataloader.prepare_training_data(train_x, train_y,
+                                                                                             validate_x, validate_y)
 
         # Variables for early stop mechanism
         lowest_val_loss, lowest_val_loss_epoch, lowest_val_loss_time, early_stop_counter = 9999, 0, 0, 0
@@ -117,7 +117,7 @@ class Trainer:
     @staticmethod
     def get_loss_function():
         method = config.get('TRAINER', 'loss_function')
-        logger.info(f"Loss function Used: {method}")
+        logger.info(f"Loss function used: {method}")
 
         if method == 'cross_entropy':
             loss_function = nn.CrossEntropyLoss()
@@ -128,7 +128,7 @@ class Trainer:
     def get_optimizer(self):
         method = config.get('TRAINER', 'optimizer')
         learning_rate = config.getfloat('TRAINER', 'learning_rate')
-        logger.info(f"Optimizer Used: {method} with Learning Rate: {learning_rate}")
+        logger.info(f"Optimizer Used: {method} with learning rate: {learning_rate}")
 
         model_params = self.model.parameters()
         if method == 'adam':

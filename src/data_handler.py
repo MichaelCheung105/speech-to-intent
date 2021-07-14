@@ -1,10 +1,10 @@
+import numpy as np
 import torch
 from logzero import logger
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset, DataLoader, RandomSampler, BatchSampler
 
-from sti_config import config
-import numpy as np
+from sti_config import HOME_PATH, config
 
 
 class SpeechDataset(Dataset):
@@ -25,7 +25,7 @@ class DataHandler:
     def __init__(self):
         pass
 
-    def preprocess_data(self, train_x, train_y, validate_x, validate_y):
+    def prepare_training_data(self, train_x, train_y, validate_x, validate_y):
         train_x, train_y = self.data_augmentation(train_x, train_y)
         train_set_dataloader = self.get_data_loader(train_x, train_y, is_train=True)
         validate_x = torch.FloatTensor(validate_x)
@@ -53,6 +53,8 @@ class DataHandler:
     @staticmethod
     def train_test_split(train_x, train_y, train_i):
         logger.info('Applying TRAIN-VALIDATION split')
+
+        # Config
         test_size = config.getfloat('TRAIN_VALIDATION_SPLIT', 'validate_size')
         random_state = config.getint('TRAIN_VALIDATION_SPLIT', 'random_state')
 
@@ -63,3 +65,30 @@ class DataHandler:
                                                                                          stratify=train_y)
 
         return train_x, validate_x, train_y, validate_y, train_i, validate_i
+
+    @staticmethod
+    def read_data(data_source):
+        logger.info(f'Loading {data_source} data')
+
+        data_path = config.get('DEFAULT', 'data_dir')
+        file_name = 'data_for_training' if data_source == 'train' else 'test_data'
+        data = np.load(f"{HOME_PATH}/{data_path}/{file_name}.npz")
+        samples = data['f0']
+        labels = data['f1'] - 1  # -1 to make the classes starts with 0
+        return samples, labels
+
+    @staticmethod
+    def preprocess(data_x):
+        # Get the indices of data
+        data_i = np.array(range(data_x.shape[0]))  # Get the indices of training data
+
+        # Down Sampling
+        down_sample_time = config.getint('PREPROCESS', 'down_sample_time')
+        if down_sample_time > 1:
+            data_x = data_x[:, ::down_sample_time, :]
+
+        down_sample_feature = config.getint('PREPROCESS', 'down_sample_feature')
+        if down_sample_feature > 1:
+            data_x = data_x[:, :, ::down_sample_feature]
+
+        return data_x, data_i
