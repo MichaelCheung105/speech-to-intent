@@ -26,7 +26,6 @@ class DataHandler:
         pass
 
     def prepare_training_data(self, train_x, train_y, validate_x, validate_y):
-        train_x, train_y = self.data_augmentation(train_x, train_y)
         train_set_dataloader = self.get_data_loader(train_x, train_y, is_train=True)
         validate_x = torch.FloatTensor(validate_x)
         validate_y = torch.LongTensor(validate_y)
@@ -44,11 +43,6 @@ class DataHandler:
         else:
             dataloader = DataLoader(dataset=dataset, batch_size=dataset.__len__())
         return dataloader
-
-    @staticmethod
-    def data_augmentation(data_x, data_y):
-        # TODO: add code to support data augmentation
-        return data_x, data_y
 
     @staticmethod
     def train_test_split(train_x, train_y, train_i):

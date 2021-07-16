@@ -1,9 +1,11 @@
 import pickle
 import time
+
 import numpy as np
 import torch
 import torch.nn as nn
 from logzero import logger
+from torchaudio import transforms
 
 from data_handler import DataHandler
 from models import LSTM, CnnLSTM, CnnLSTMV2, CnnMaxPool
@@ -44,6 +46,10 @@ class Trainer:
         for e in range(self.epoch):
             list_of_train_loss = list()  # Logging train loss
             for idx, (sampled_x, sampled_y) in enumerate(train_set_dataloader):
+                # Data augmentation
+                enable_augmentation = config.get('TRAINER', 'enable_augmentation')
+                sampled_x = self.data_augmentation(sampled_x) if enable_augmentation else sampled_x
+
                 # Reset gradient
                 self.optimizer.zero_grad()
 
@@ -136,3 +142,14 @@ class Trainer:
         else:
             raise Exception
         return optimizer
+
+    @staticmethod
+    def data_augmentation(data_x):
+        mean = data_x.mean()
+        for _ in range(5):
+            # Since the 2nd dimension is time, this is a actually a TimeMasking operation
+            data_x = transforms.FrequencyMasking(freq_mask_param=6)(data_x, mask_value=mean)
+        for _ in range(2):
+            # Since the 3rd dimension is feature, this is a actually a FeatureMasking operation
+            data_x = transforms.TimeMasking(time_mask_param=2)(data_x, mask_value=mean)
+        return data_x
