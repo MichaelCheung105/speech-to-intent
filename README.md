@@ -7,7 +7,7 @@
 LSTM for time-series
 CNN for spatial relationship
 
-Result
+Result (32C)
 64B = 30%
 128B = 43%
 256B = 55%
@@ -19,3 +19,6 @@ Result
 512B + 64C = 55%, 50%
 
 20210714003953 - 512B + 16C = 83%, 77%, ep65:0.577 val loss
+(Should try adding padding (3,3) to the above)
+
+20210717012343 - 512B + 16C(K33,D22,S33,P33) + 16C(K15) = 85%, 78%, ep20:0.496

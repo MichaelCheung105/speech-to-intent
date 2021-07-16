@@ -75,13 +75,13 @@ class CnnLSTMV2(nn.Module):
         output_size = config.getint('CnnLSTM', 'output_size')
 
         # Network
-        self.cnn = nn.Conv2d(in_channels=in_channels, out_channels=out_channels,
-                             kernel_size=(kernel_size_h, kernel_size_w), dilation=(dilation_h, dilation_w),
-                             stride=(stride_h, stride_w), padding=padding)
-        self.cnn2 = nn.Conv2d(in_channels=16, out_channels=8,
-                             kernel_size=(3, 1), dilation=(2, 1),
-                             stride=(3, 1), padding=padding)
-        self.lstm = nn.LSTM(input_size=8, hidden_size=hidden_layer_size, batch_first=True)
+        self.cnn = nn.Conv2d(in_channels=1, out_channels=16,
+                             kernel_size=(3, 3), dilation=(2, 2),
+                             stride=(3, 3), padding=(3, 3))
+        self.cnn2 = nn.Conv2d(in_channels=16, out_channels=16,
+                             kernel_size=(1, 15), dilation=(1, 1),
+                             stride=(1, 1), padding='valid')
+        self.lstm = nn.LSTM(input_size=16, hidden_size=hidden_layer_size, batch_first=True)
         self.linear = nn.Linear(hidden_layer_size, output_size)
 
     def forward(self, input_seq):
