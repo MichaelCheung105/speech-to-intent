@@ -28,7 +28,7 @@ class DataExporter:
                                                model_id=model_id,
                                                remarks=config.get('DEFAULT', 'remarks'))
         predictions_df['label'] = predictions_df['label'] + 1  # +1 to make the classes start from 1
-        predictions_df['prediced_class'] = predictions_df['prediced_class'] + 1  # +1 to make the classes start from 1
+        predictions_df['predicted_class'] = predictions_df['predicted_class'] + 1  # +1 to make the classes start from 1
 
         # Log evaluation metrics as csv
         predictions_path = config.get('DEFAULT', 'predictions_path')
@@ -88,7 +88,12 @@ class DataExporter:
 
     def log_learning_curve(self, result_dict):
         logger.info(f'Step 4: exporting learning curves')
+        model_id = config.get('DEFAULT', 'model_id') if self.experiment_mode == 'test' else self.create_dt
         df = pd.DataFrame(result_dict['learning_curve'], columns=['epoch', 'avg_train_loss', 'avg_validation_loss'])
+        df = df.assign(create_dt=self.create_dt,
+                       model_id=model_id,
+                       remarks=config.get('DEFAULT', 'remarks'))
+
         learning_curve_path = config.get('DEFAULT', 'learning_curve_path')
         save_path = f"{HOME_PATH}/{learning_curve_path}/{self.create_dt}_learning_curve_df.csv"
         logger.info(f'Saving learning curve to {save_path}')

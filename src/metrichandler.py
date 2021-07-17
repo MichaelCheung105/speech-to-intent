@@ -56,8 +56,8 @@ class MetricHandler:
 
     def get_prediction_df(self, dataset, data_i, data_y, probability_per_class, predicted_class):
         predicted_class_df = pd.DataFrame(data={'dataset': dataset, 'indices': data_i, 'label': data_y,
-                                                'prediced_class': predicted_class,
-                                                'prediced_class_probability': np.max(probability_per_class, 1)})
+                                                'predicted_class': predicted_class,
+                                                'predicted_class_probability': np.max(probability_per_class, 1)})
 
         other_class_df = pd.DataFrame(data=probability_per_class, columns=range(1, probability_per_class.shape[1]+1))
 
