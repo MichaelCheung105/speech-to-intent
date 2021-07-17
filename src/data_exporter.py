@@ -97,4 +97,4 @@ class DataExporter:
         learning_curve_path = config.get('DEFAULT', 'learning_curve_path')
         save_path = f"{HOME_PATH}/{learning_curve_path}/{self.create_dt}_learning_curve_df.csv"
         logger.info(f'Saving learning curve to {save_path}')
-        df.to_csv(save_path, index=True)
+        df.to_csv(save_path, index=False)
