@@ -145,3 +145,5 @@ result/models/*
 !result/models/.gitkeep
 result/predictions/*
 !result/predictions/.gitkeep
+result/learning_curve/*
+!result/learning_curve/.gitkeep

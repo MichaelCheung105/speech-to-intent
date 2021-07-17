@@ -69,20 +69,5 @@ class DataHandler:
         data = np.load(f"{HOME_PATH}/{data_path}/{file_name}.npz")
         samples = data['f0']
         labels = data['f1'] - 1  # -1 to make the classes starts with 0
-        return samples, labels
-
-    @staticmethod
-    def preprocess(data_x):
-        # Get the indices of data
-        data_i = np.array(range(data_x.shape[0]))  # Get the indices of training data
-
-        # Down Sampling
-        down_sample_time = config.getint('PREPROCESS', 'down_sample_time')
-        if down_sample_time > 1:
-            data_x = data_x[:, ::down_sample_time, :]
-
-        down_sample_feature = config.getint('PREPROCESS', 'down_sample_feature')
-        if down_sample_feature > 1:
-            data_x = data_x[:, :, ::down_sample_feature]
-
-        return data_x, data_i
+        indices = np.array(range(samples.shape[0]))
+        return samples, labels, indices

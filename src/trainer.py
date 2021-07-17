@@ -8,7 +8,7 @@ from logzero import logger
 from torchaudio import transforms
 
 from data_handler import DataHandler
-from models import LSTM, CnnLSTM, CnnLSTMV2, CnnMaxPool
+from models import LSTM, CnnLSTM
 from sti_config import config
 
 
@@ -31,7 +31,7 @@ class Trainer:
         self.trained_time = None
         self.trained_epoch = None
 
-    def train(self, train_x, train_y, validate_x, validate_y):
+    def train(self, train_x, train_y, validate_x, validate_y, result_dict):
         logger.info('Training model')
 
         # Obtain train_set_dataloader and validation set data (Type: torch)
@@ -70,8 +70,9 @@ class Trainer:
             with torch.no_grad():
                 y_pred = self.model(validate_x)
                 validate_loss = self.loss_function(y_pred, validate_y)
-                avg_val_loss = validate_loss.mean()
+                avg_val_loss = validate_loss.detach().numpy().mean()
                 avg_train_loss = np.mean(list_of_train_loss)
+                result_dict['learning_curve'].append((e, avg_train_loss, avg_val_loss))
                 logger.info(f'epoch: {e}, train loss: {avg_train_loss}, validate loss: {avg_val_loss}')
 
             # Early stop mechanism
@@ -112,10 +113,6 @@ class Trainer:
             mod = LSTM()
         elif method == 'CnnLSTM':
             mod = CnnLSTM()
-        elif method == 'CnnLSTMV2':
-            mod = CnnLSTMV2()
-        elif method == 'CnnMaxPool':
-            mod = CnnMaxPool()
         else:
             raise Exception
         return mod
@@ -148,7 +145,6 @@ class Trainer:
         # Augmentation via torchaudio
         mean = data_x.mean()
         data_x = data_x.swapaxes(1, 2)  # Reshape data into (N, F, T)
-        # data_x = transforms.TimeStretch(freq_mask_param=6)(data_x, mask_value=mean)
         for _ in range(5):
             data_x = transforms.TimeMasking(time_mask_param=6)(data_x, mask_value=mean)
         for _ in range(2):
