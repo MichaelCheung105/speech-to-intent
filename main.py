@@ -1,15 +1,13 @@
 import pickle
 from datetime import datetime
 
-import numpy as np
-import pandas as pd
 from logzero import logger
 
+from data_exporter import DataExporter
 from data_handler import DataHandler
 from metrichandler import MetricHandler
 from sti_config import HOME_PATH, config
 from trainer import Trainer
-from data_exporter import DataExporter
 
 
 class Runner:
