@@ -145,11 +145,14 @@ class Trainer:
 
     @staticmethod
     def data_augmentation(data_x):
+        # Augmentation via torchaudio
         mean = data_x.mean()
+        data_x = data_x.swapaxes(1, 2)  # Reshape data into (N, F, T)
+        # data_x = transforms.TimeStretch(freq_mask_param=6)(data_x, mask_value=mean)
         for _ in range(5):
-            # Since the 2nd dimension is time, this is a actually a TimeMasking operation
-            data_x = transforms.FrequencyMasking(freq_mask_param=6)(data_x, mask_value=mean)
+            data_x = transforms.TimeMasking(time_mask_param=6)(data_x, mask_value=mean)
         for _ in range(2):
-            # Since the 3rd dimension is feature, this is a actually a FeatureMasking operation
-            data_x = transforms.TimeMasking(time_mask_param=2)(data_x, mask_value=mean)
+            data_x = transforms.FrequencyMasking(freq_mask_param=2)(data_x, mask_value=mean)
+        data_x = data_x.swapaxes(1, 2)  # Reshape data back to (N, T, F)
+
         return data_x

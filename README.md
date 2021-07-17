@@ -20,6 +20,7 @@ Result (32C)
 
 20210714003953 - 512B + 16C = 83%, 77%, ep65:0.577 val loss
 (Should try adding padding (3,3) to the above)
-20210717031231 - Adding noise to the above leads to 0.375 at episode 153 (88%, 85%)
+20210717031231 - Adding noise to the above leads to 0.375 at epoch 153 (88%, 85%)
+20210717031231 - Adding noise to the above leads to 0.285 at epoch 140 (91.6%, 87.7%)
 
 20210717012343 - 512B + 16C(K33,D22,S33,P33) + 16C(K15) = 85%, 78%, ep20:0.496
