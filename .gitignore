@@ -133,8 +133,10 @@ data/*
 !data/.gitkeep
 docs/*
 !docs/.gitkeep
+!docs/*.ipynb
 notebook/*
 !notebook/.gitkeep
+!notebook/*.ipynb
 result/accuracies/*
 !result/accuracies/.gitkeep
 result/confusion_matrix/*
