@@ -47,7 +47,7 @@ class Trainer:
             list_of_train_loss = list()  # Logging train loss
             for idx, (sampled_x, sampled_y) in enumerate(train_set_dataloader):
                 # Data augmentation
-                enable_augmentation = config.get('TRAINER', 'enable_augmentation')
+                enable_augmentation = config.getboolean('TRAINER', 'enable_augmentation')
                 sampled_x = self.data_augmentation(sampled_x) if enable_augmentation else sampled_x
 
                 # Reset gradient
