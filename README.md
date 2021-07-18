@@ -8,7 +8,7 @@ To run the model training and evaluation pipeline, the following prerequisite is
 4. Add the environment variable FLUENT_HOME as {your_directory_address} by executing **set FLUENT_HOME={your_directory_address}**
 
 ### Model Training & Evaluation
-A main.py module allows the use to train and evaluate the model.
+A main.py module allows the user to train and evaluate the model.
 The 'env_config.ini' file is used to adjust the config setting for model training and evaluation.
 
 1. To train the model, go to the "DEFAULT" section of 'env_config.ini' and set the 'experiment_mode' to 'train'.
