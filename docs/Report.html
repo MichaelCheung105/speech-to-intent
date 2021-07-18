@@ -13976,7 +13976,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>This section is used to import packages to load data/files for the contents of this report. To run this notebook, change the FLUENT_HOME environment variable to the address of this repository</p>
+<p>This section is used to import packages to load data/files for the contents of this report. To run this notebook, change the FLUENT_HOME environment variable to the address of your repository</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs  ">
@@ -14118,7 +14118,7 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="1.2-Sample-Data">1.2 Sample Data<a class="anchor-link" href="#1.2-Sample-Data">&#182;</a></h3><p>Each spectrogram are arranged in a 3d array [sample, time, feature]. It is observed that each spectrogram shares the same number of dimensions. The time dimension is of size-300 while the feature dimension is of size-41. Below are some examples of the spectrograms from training dataset</p>
+<h3 id="1.2-Sample-Data">1.2 Sample Data<a class="anchor-link" href="#1.2-Sample-Data">&#182;</a></h3><p>Each spectrogram is arranged in a 3d array [sample, time, feature]. It is observed that each spectrogram shares the same number of dimensions. The time dimension is of size-300 while the feature dimension is of size-41. Below are some examples of the spectrograms from training dataset</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14183,10 +14183,11 @@ a.anchor-link {
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>A hybrid model mixing CNN, LSTM and MLP was trained. CNN layer was first applied to extract time-frequency features from the spectrogram. The CNN output was then fed into the LSTM layer to encode the features into a latent space over time. Lastly, the final output of the LSTM layer was fed into the MLP layer to give a 31-sized vector, each vector element representing a score given to each possible intent. The higher the score, the high probability of the intent.</p>
-<h3 id="2.1-CNN-Parameters">2.1 CNN Parameters<a class="anchor-link" href="#2.1-CNN-Parameters">&#182;</a></h3><p>The CNN layer consumes the raw spectrogram matrix to capture time-frequency features from the spectrogram. <strong>16 kernels, each sized 3 (along the time-axis) * 41 (along the feature-axis) with a dilation of 2 (along the time-axis) are used with a stride of 3 (along the time-axis)</strong> to capture 16 different time-frequency representations from the spectrogram along the time-axis. Therefore, the total number of parameters of the CNN layer is 16*3*41+16=1984.</p>
-<h3 id="2.2-LSTM-Parameters">2.2 LSTM Parameters<a class="anchor-link" href="#2.2-LSTM-Parameters">&#182;</a></h3><p>The LSTM layer consumes the CNN output per timestamp to capture the long-term temporal contextual information from spectrogram. <strong>The hidden state is set to be 64</strong>, allowing the LSTM layer to encode the contextual information into a 64-sized latent space. Since the shape of CNN output per timestamp is 32, the total number of parameters of the LSTM layer is 256*32+256+256*64+256=25088.</p>
+<p>A hybrid model mixing CNN, LSTM and MLP was trained. CNN layer was first applied to extract time-frequency features from the spectrograms. The CNN output was then fed into the LSTM layer to encode the features into a latent space over time. Lastly, the final output of the LSTM layer was fed into the MLP layer to give a 31-sized vector, each vector element representing a score given to each possible intent. The higher the score, the high probability the speech belongs to the respective intent.</p>
+<h3 id="2.1-CNN-Parameters">2.1 CNN Parameters<a class="anchor-link" href="#2.1-CNN-Parameters">&#182;</a></h3><p>The CNN layer consumes the raw spectrogram matrix to capture time-frequency features. <strong>16 kernels, each sized 3 (along the time-axis) * 41 (along the feature-axis) with a dilation of 2 (along the time-axis) are used with a stride of 3 (along the time-axis)</strong> to capture 16 different time-frequency representations from the spectrograms. Therefore, the total number of parameters of the CNN layer is 16*3*41+16=1984.</p>
+<h3 id="2.2-LSTM-Parameters">2.2 LSTM Parameters<a class="anchor-link" href="#2.2-LSTM-Parameters">&#182;</a></h3><p>The LSTM layer consumes the CNN output per timestamp to capture the long-term temporal contextual information from the spectrograms. <strong>The hidden state is set to be 64</strong>, allowing the LSTM layer to encode the contextual information into a 64-sized latent space. Since the shape of CNN output per timestamp is 16, the total number of parameters of the LSTM layer is 256*16+256+256*64+256=20992.</p>
 <h3 id="2.3-MLP-Parameters">2.3 MLP Parameters<a class="anchor-link" href="#2.3-MLP-Parameters">&#182;</a></h3><p>The MLP layer consists of <strong>31 neurons, summarizing the hidden state of shape 64</strong> from the LSTM output into a 31-sized vector. Therefore, the total number of parameters of the MLP layer is 31*64+31=2015.</p>
+<h3 id="2.4-Total-Number-of-Parameters">2.4 Total Number of Parameters<a class="anchor-link" href="#2.4-Total-Number-of-Parameters">&#182;</a></h3><p>Thus, the total number of parameters of this CnnLSTM model is 1984+20992+2015=23991</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14305,7 +14306,7 @@ linear.bias:		 torch.Size([31])
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="3.-Early-Stopping">3. Early Stopping<a class="anchor-link" href="#3.-Early-Stopping">&#182;</a></h3><p>An early stopping mechanism was applied to avoid overfitting. After each epoch, the validation set was inferenced and the validation loss was recorded. <strong>The training was early stopped when the validation loss failed to improve for 20 epochs</strong>. Then, the model parameters right after the epoch with lowest validation loss were used as the final model for evaluation on test set.</p>
+<h3 id="3.-Early-Stopping">3. Early Stopping<a class="anchor-link" href="#3.-Early-Stopping">&#182;</a></h3><p>An early stopping mechanism was applied to avoid overfitting. After each epoch, the validation set was inferenced and the validation loss was recorded. <strong>The training was early stopped when the validation loss failed to improve for 20 epochs</strong>. Then, the model parameters of the epoch with lowest validation loss were used as the final model for evaluation on test set.</p>
 
 </div>
 </div>
@@ -14323,7 +14324,7 @@ linear.bias:		 torch.Size([31])
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>To measure the result, a <strong>softmax operation</strong> was applied to the model's output in order to obtain the probability of each sample belonging to each possible intents. <strong>The intent with the highest proability would be the predicted class of the model</strong>. The <strong>F1-Score, Recall and Precision</strong> scores were then calculated for each intent. A <strong>micro-average</strong> of all 3 metrics were also calculated as an overall performance measure</p>
-<p>Based on Figure 4a., <strong>the F1-Score of Train, Validate and Test sets are 0.98, 0.92 and 0.88 respectively</strong>. Diving into details, Figure 4b shows the recall &amp; precision combination chart for each intents. The bars represent recall and the line represent precision. It is observed from the validation set that the model's <strong>performance for intent 11, 12, 13, 16 and 17 are obviously worse than other intent</strong>.</p>
+<p>Based on Figure 4a., <strong>the F1-Score of Train, Validate and Test sets are 0.98, 0.92 and 0.88 respectively</strong>. Diving into details, Figure 4b shows the recall &amp; precision combination chart for each intents. The bars represent recall and the lines represent precision. It is observed from the validation set that the model's <strong>performance for intent 11, 12, 13, 16 and 17 is obviously worse than other intents</strong>.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14409,8 +14410,8 @@ Figure 4b. Recall &amp; Precision per Intent per Train, Validate &amp; Test set
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<h3 id="1.-Confusion-Matrix">1. Confusion Matrix<a class="anchor-link" href="#1.-Confusion-Matrix">&#182;</a></h3><p>As mentioned in the "Result" section, it is observed from the validation set that the model's <strong>accuracy for intent 11, 12, 13, 16 and 17 are obviously worse than other intent</strong>. One possible explaination is that these classes are similar to each other, making it hard for the model to distinguish them. To verify the hypothesis, the confusion matrices for Train, Validate &amp; Test set are plotted below in Figure 5.</p>
-<p>Based on the confusion matrix of the validation set, it seems that <strong>the model is sometimes confused between some pair of intents</strong> such as intent 11 &amp; 12, intent 13 &amp; 17 and intent 16 &amp; 20. For example, as observed from the confusion matrix of validation set, 16 samples with intent-11 is predicted as as intent-12 while 11 samples with the intent=12 is predicted as intent-11.</p>
+<h3 id="1.-Confusion-Matrix">1. Confusion Matrix<a class="anchor-link" href="#1.-Confusion-Matrix">&#182;</a></h3><p>As mentioned in the "Result" section, it is observed from the validation set that the model's <strong>accuracy for intent 11, 12, 13, 16 and 17 is obviously worse than other intents</strong>. One possible explanation is that these classes are similar to each other, making it hard for the model to distinguish them. To verify the hypothesis, the confusion matrices for Train, Validate &amp; Test set are plotted below in Figure 5a.</p>
+<p>Based on the confusion matrix of the validation set, it seems that <strong>the model is sometimes confused between some pair of intents</strong> such as intent 11 &amp; 12, intent 13 &amp; 17 and intent 16 &amp; 20. For example, as observed from the confusion matrix of validation set, 16 samples with intent-11 is predicted as intent-12 while 11 samples with intent=12 is predicted as intent-11.</p>
 <p>Due to time constraints, not much investigation was conducted for these pairs of similar intents.</p>
 
 </div>
@@ -14484,7 +14485,7 @@ Figure 4b. Recall &amp; Precision per Intent per Train, Validate &amp; Test set
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>During model training, it is observed that the train loss droped significantly faster than the validation loss. The validation loss then soon stopped improving and ingtriggered the early stop mechanism. After applying the data augmentation strategy, we can observe from Figure 5b that the train loss dropped slower and only got below validation loss at around epoch 40 instead of epoch 10 where no data augmentation is applied. The resulting lowest validation loss is also lower, meaning the model can generalize better to unseen data.</p>
+<p>During model training, it is observed that the train loss droped significantly faster than the validation loss. The validation loss then soon stopped improving and triggered the early stop mechanism. After applying the data augmentation strategy, we can observe from Figure 5b that the train loss dropped slower and only got below validation loss at around epoch 40 instead of epoch 10 where no data augmentation is applied. The resulting lowest validation loss is also lower, meaning the model can generalize better to unseen data.</p>
 <p>One interesting thing to note is that without data augmentation, the train loss dropped quickly and suddenly exploded at around epoch 55. This suggest a lower learning rate should be used.</p>
 
 </div>
@@ -14556,7 +14557,7 @@ Figure 4b. Recall &amp; Precision per Intent per Train, Validate &amp; Test set
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
 <p>It appears that batch size plays a significant role in improving the accuracy of the model. 5 experiments were conducted with the CnnLSTM model using 32 kernels. The experiments start from setting batch_size=64 to setting batch_size=1024. We can observe that the F1-Score rises from 0.24 to 0.87 in validation set just by changing the batch size.</p>
-<p>This is likely due to the fact the large batch size increases the chance of each batch to cover sufficient samples from each of the 31 intents, allowing the CNN and LSTM layer to have a more stable learning and to learn generalized representation of the spectrograms.</p>
+<p>This is likely due to the fact the large batch size increases the chance of each batch to cover sufficient samples from each of the 31 intents, allowing the CNN and LSTM layer to have a more stable learning and to learn generalized representations of the spectrograms.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
@@ -14717,8 +14718,8 @@ Figure 4b. Recall &amp; Precision per Intent per Train, Validate &amp; Test set
 </div>
 <div class="jp-Cell-inputWrapper"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput " data-mime-type="text/markdown">
-<p>It appears that the number of kernels also plays a significant role in improving the accuracy of the model. At first, 32 kernels was applied to the CnnLSTM model and achieved a 0.87 F1-score. Since the designed CNN model only has 1 convolutional layer with a big kernel size (3*41), it is hypothesised that using larger number of kernels will enable the model to capture more diverse pattern from the spectrograms.</p>
-<p>However, experiment results shows that larger number of kernels (from 32 to 64) actually leads to worse performance. The F1-score of validation set dropped from 0.87 to 0.68. In light of this observation, another experiment using smaller number of kernels (from 32 to 16) was conducted. The F1-score improved from 0.87 to 0.92. The exact cause of this phenomenon is unknown. Nevertheless, one hypothesis is that smaller number of kernels leads to smaller size of resulting feature map, making it easier for the subsequent LSTM model to encode the CNN output into a vector with critical contextual information.</p>
+<p>It appears that the number of kernels also plays a significant role in improving the accuracy of the model. At first, 32 kernels was applied to the CnnLSTM model and achieved a 0.87 F1-score. Since the designed CNN model only has 1 convolutional layer with a big kernel size (3*41), it is hypothesised that using larger number of kernels will enable the model to capture more diverse patterns from the spectrograms.</p>
+<p>However, experiment results show that larger number of kernels (from 32 to 64) actually leads to worse performance. The F1-score of validation set dropped from 0.87 to 0.68. In light of this observation, another experiment using smaller number of kernels (from 32 to 16) was conducted. The F1-score improved from 0.87 to 0.92. The exact cause of this phenomenon is unknown. Nevertheless, one hypothesis is that smaller number of kernels leads to smaller size of resulting feature map, making it easier for the subsequent LSTM model to encode the CNN output into a vector with critical contextual information.</p>
 
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell   ">
