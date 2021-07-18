@@ -5,7 +5,7 @@ To run the model training and evaluation pipeline, the following prerequisite is
 1. Place the *.npz data files in the 'data' directory
 2. Install the required packages using the "requirements.txt" file by executing **pip install -r requirements.txt**
 3. Add the 'src' directory to PYTHONPATH by executing **set PYTHONPATH={your_directory_address}\src**
-4. Add the environment variable FLUENT_HOME as {your_directory_address} by **set FLUENT_HOME={your_directory_address}**
+4. Add the environment variable FLUENT_HOME as {your_directory_address} by executing **set FLUENT_HOME={your_directory_address}**
 
 ### Model Training & Evaluation
 A main.py module allows the use to train and evaluate the model.
