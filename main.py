@@ -78,6 +78,7 @@ class Runner:
 
 if __name__ == '__main__':
     create_dt = datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
+    create_dt = '20210717000000'
     logger.info(f'Experiment {create_dt} begins')
     runner = Runner(create_dt)
     runner.run()
