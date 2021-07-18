@@ -1,26 +1,18 @@
-# speech-to-intent
+# Speech-to-Intent
 
-1. pip install requirements.txt
-2. set PYTHONPATH={repository}/{src}
-3. set ENVIRONMENT_VARIABLE={repository}
+### Prerequisite
+To run the model training and evaluation pipeline, the following prerequisite is required. 
+1. Install the required package using the "requirements.txt" file in the repository by **pip install requirements.txt**
+2. Add the 'src' directory in the repository to PYTHONPATH by **set PYTHONPATH={your_repository}\src**
+3. Add the environment variable "FLUENT_HOME"={your_repository}" by **set FLUENT_HOME={your_repository}\src**
 
-LSTM for time-series
-CNN for spatial relationship
+### Model Training & Evaluation
+The 'env_config.ini' file is used to adjust the config setting for model training and evaluation.
 
-Result (32C)
-64B = 30%
-128B = 43%
-256B = 55%
-512B = 74%
-1024B = 79%
+1. To train the model, go to the "DEFAULT" section of 'env_config.ini' and set the 'experiment_mode' to 'train'.
+By default, the 'env_config.ini' file is in train mode already.
+The other hyper-parameters are the settings that leads to the best performing model. 
 
-512B + 16C = 83%, 77%
-512B + 32C = 74%, 65%
-512B + 64C = 55%, 50%
-
-20210714003953 - 512B + 16C = 83%, 77%, ep65:0.577 val loss
-(Should try adding padding (3,3) to the above)
-20210717031231 - Adding noise to the above leads to 0.375 at epoch 153 (88%, 85%)
-20210717031231 - Adding noise to the above leads to 0.285 at epoch 140 (91.6%, 87.7%)
-
-20210717012343 - 512B + 16C(K33,D22,S33,P33) + 16C(K15) = 85%, 78%, ep20:0.496
+2. To evaluate the model, go to the "DEFAULT" section of 'env_config_ini' and set the 'experiment_mode' to 'evaluate'.
+Also, set the 'model_id' to the model you desired. The model IDs can be found in the './result/models' directory.
+By default, the 'model_id' is set to be the best performing model.
