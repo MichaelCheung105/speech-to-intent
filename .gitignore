@@ -134,6 +134,7 @@ data/*
 docs/*
 !docs/.gitkeep
 !docs/*.ipynb
+!docs/*.svg
 notebook/*
 !notebook/.gitkeep
 !notebook/*.ipynb
