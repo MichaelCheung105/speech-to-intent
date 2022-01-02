@@ -1,10 +1,10 @@
 # Speech-to-Intent
 
 ### Introduction
-This project is an interview assignment concerning speech recognition.
-Since the data is proprietary, you can skip the **Prerequisite** section of this README.md file.
-You can navigate the code by cloning the repository and following the **Model Training & Evaluation** section of this README.md file.
-A **report** outlining the model architecture, training method, performance and findings can be found in the 'doc' directory.
+* This project is an interview assignment concerning speech recognition.  
+* Since the data is proprietary, you can skip the **Prerequisite** section of this README.md file.  
+* You can navigate the code by cloning the repository and following the **Model Training & Evaluation** section of this README.md file.  
+* A **report** outlining the model architecture, training method, performance and findings can be found in the 'doc' directory.  
 
 ### Prerequisite
 To run the model training and evaluation pipeline, the following prerequisite is required: 
