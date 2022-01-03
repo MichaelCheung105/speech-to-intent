@@ -4,7 +4,7 @@
 * This project is an interview assignment concerning speech recognition.  
 * Since the data is proprietary, you can skip the **Prerequisite** section of this README.md file.
 * You can navigate the code by cloning the repository and following the **Model Training & Evaluation** section.  
-* A [**report**](https://github.com/MichaelCheung105/speech-to-intent/blob/main/docs/Report.ipynb) outlining the model architecture, training method, performance and findings can be found in the 'doc' directory.  
+* A [**report**](https://github.com/MichaelCheung105/speech-to-intent/blob/main/docs/Report.ipynb) outlining the [**model architecture**](https://github.com/MichaelCheung105/speech-to-intent/blob/main/docs/Model%20Architecture.svg), training method, performance and findings can be found in the 'doc' directory.  
 
 ### Prerequisite
 To run the model training and evaluation pipeline, the following prerequisite is required: 
